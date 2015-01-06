@@ -57,13 +57,14 @@ class AboutViewController: UIViewController {
         UIApplication.sharedApplication().openURL(NSURL(string: "http://t.co/cannonball")!)
     }
 
-    @IBAction func signOut(sender: AnyObject) {
-        // Sign out from Twitter and Digits:
-
-        // Present the Sign In again.
+    private func presentSignInViewController() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let signInViewController: UIViewController! = storyboard.instantiateViewControllerWithIdentifier("SignInViewController") as UIViewController
         self.presentViewController(signInViewController, animated: true, completion: nil)
+    }
+
+    @IBAction func signOut(sender: AnyObject) {
+
     }
 
 }
