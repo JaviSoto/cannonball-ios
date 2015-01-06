@@ -25,6 +25,7 @@ struct TWTRAPIClient {
 }
 
 private let TwitterAPISearchURL = "https://api.twitter.com/1.1/search/tweets.json"
+private let TwitterAPISearchHTTPMethod = "GET"
 private let PoemSearchQuery = "#cannonballapp AND pic.twitter.com AND (#adventure OR #romance OR #nature OR #mystery)"
 
 private let PoemSearchParameters: Dictionary<String, String> =
