@@ -16,12 +16,22 @@
 
 import UIKit
 
+import Fabric
+import Crashlytics
+import TwitterKit
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
     func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
+        Fabric.with([Crashlytics(), Twitter()])
+
+        if Twitter.sharedInstance().session() == nil {
+            showSignInController()
+        }
+
         return true
     }
 

@@ -16,13 +16,7 @@
 
 import Foundation
 
-// TODO: Delete. Just stubs to make the project compile before we import TwitterKit
-struct TWTRTweet {
-
-}
-struct TWTRAPIClient {
-
-}
+import TwitterKit
 
 private let TwitterAPISearchURL = "https://api.twitter.com/1.1/search/tweets.json"
 private let TwitterAPISearchHTTPMethod = "GET"
@@ -36,7 +30,27 @@ private let PoemSearchParameters: Dictionary<String, String> =
 extension TWTRAPIClient {
     // Search for poems on Twitter.
     func searchPoemTweets(completion: [TWTRTweet] -> ()) {
-        completion([])
+        Twitter.sharedInstance().logInGuestWithCompletion { guestSession, error in
+            var error: NSError?
+            if let request = self.URLRequestWithMethod(TwitterAPISearchHTTPMethod, URL: TwitterAPISearchURL, parameters: PoemSearchParameters, error: &error) {
+                self.sendTwitterRequest(request) { response, data, error in
+                    if error != nil {
+                        println("Request failed with error: \(error)")
+                        completion([])
+                    } else {
+                        let tweets = tweetsFromJSONData(data) ?? []
+
+                        println("Retrieved \(countElements(tweets)) tweets")
+
+                        completion(tweets)
+                    }
+                }
+            }
+            else {
+                println("Error creating request: \(error)")
+                completion([])
+            }
+        }
     }
 }
 
@@ -51,7 +65,8 @@ private func JSONDictionaryFromData(JSONData: NSData) -> [String: AnyObject]? {
 }
 
 private func tweetsFromTwitterResponseDictionary(tweetsDictionary: [String: AnyObject]) -> [TWTRTweet] {
-    return []
+    let tweetDictionaries = tweetsDictionary["statuses"] as? [AnyObject]
+    return tweetDictionaries.map { return TWTRTweet.tweetsWithJSONArray($0) as [TWTRTweet] } ?? []
 }
 
 private func tweetsFromJSONData(jsonData: NSData) -> [TWTRTweet]? {

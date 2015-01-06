@@ -16,6 +16,8 @@
 
 import UIKit
 
+import TwitterKit
+
 class AboutViewController: UIViewController {
 
     // MARK: References
@@ -64,7 +66,10 @@ class AboutViewController: UIViewController {
     }
 
     @IBAction func signOut(sender: AnyObject) {
+        Twitter.sharedInstance().logOut()
+        Digits.sharedInstance().logOut()
 
+        presentSignInViewController()
     }
 
 }

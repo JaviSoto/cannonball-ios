@@ -16,6 +16,8 @@
 
 import UIKit
 
+import TwitterKit
+
 class TweetListViewController: UITableViewController {
 
     var tweets: [TWTRTweet] = [] {
@@ -24,7 +26,7 @@ class TweetListViewController: UITableViewController {
         }
     }
 
-    var prototypeCell: UITableViewCell!
+    var prototypeCell: TWTRTweetTableViewCell!
 
     let tweetTableCellReuseIdentifier = "TweetCell"
 
@@ -41,10 +43,10 @@ class TweetListViewController: UITableViewController {
         self.tableView.allowsSelection = false
 
         // Create a single prototype cell for height calculations.
-        self.prototypeCell = UITableViewCell(style: .Default, reuseIdentifier: tweetTableCellReuseIdentifier)
+        self.prototypeCell = TWTRTweetTableViewCell(style: .Default, reuseIdentifier: tweetTableCellReuseIdentifier)
 
         // Register the identifier for TWTRTweetTableViewCell.
-        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: tweetTableCellReuseIdentifier)
+        self.tableView.registerClass(TWTRTweetTableViewCell.self, forCellReuseIdentifier: tweetTableCellReuseIdentifier)
 
         // Setup the refresh control.
         self.refreshControl = UIRefreshControl()
@@ -83,7 +85,11 @@ class TweetListViewController: UITableViewController {
         }
         self.isLoadingTweets = true
 
-        // TODO: Request tweets
+        Twitter.sharedInstance().APIClient.searchPoemTweets { [weak self] tweets in
+            self?.tweets = tweets
+
+            return ()
+        }
 
         // End the refresh indicator.
         self.refreshControl?.endRefreshing()
@@ -106,7 +112,12 @@ class TweetListViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         // Retrieve the Tweet cell.
-        let cell = tableView.dequeueReusableCellWithIdentifier(tweetTableCellReuseIdentifier, forIndexPath: indexPath) as UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(tweetTableCellReuseIdentifier, forIndexPath: indexPath) as TWTRTweetTableViewCell
+        cell.tweetView.theme = .Dark
+
+        let tweet = self.tweets[indexPath.row]
+
+        cell.configureWithTweet(tweet)
 
         return cell
     }
@@ -114,7 +125,9 @@ class TweetListViewController: UITableViewController {
     // MARK: UITableViewDelegate
 
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return self.tableView.estimatedRowHeight
-    }
+        let tweet = self.tweets[indexPath.row]
 
+        self.prototypeCell.configureWithTweet(tweet)
+        return self.prototypeCell.calculatedHeightForWidth(self.view.bounds.width)
+    }
 }

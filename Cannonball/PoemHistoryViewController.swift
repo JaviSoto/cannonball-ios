@@ -16,6 +16,8 @@
 
 import UIKit
 
+import TwitterKit
+
 class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
 
     // MARK: Properties
@@ -115,5 +117,13 @@ class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
 
     func sharePoem(poem: Poem, withImage image: UIImage) {
         let tweetText = "Just composed a poem! #cannonballapp #\(poem.theme.lowercaseString)"
+
+        let composer = TWTRComposer()
+        composer.setText(tweetText)
+        composer.setImage(image)
+
+        composer.showWithCompletion { result in
+            println("Composer shown with result \(result)")
+        }
     }
 }
