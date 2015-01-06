@@ -35,8 +35,8 @@ private let PoemSearchParameters: Dictionary<String, String> =
 
 extension TWTRAPIClient {
     // Search for poems on Twitter.
-    func searchPoemTweets(completion: [TWTRTweet]? -> ()) {
-        completion(nil)
+    func searchPoemTweets(completion: [TWTRTweet] -> ()) {
+        completion([])
     }
 }
 
