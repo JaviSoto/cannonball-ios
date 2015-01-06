@@ -14,69 +14,47 @@
 // limitations under the License.
 //
 
-import TwitterKit
+import Foundation
 
-enum PoemTweetsResult {
-    case Tweets([TWTRTweet])
-    case Error(NSError)
+// TODO: Delete. Just stubs to make the project compile before we import TwitterKit
+struct TWTRTweet {
+
+}
+struct TWTRAPIClient {
+
 }
 
 private let TwitterAPISearchURL = "https://api.twitter.com/1.1/search/tweets.json"
 private let PoemSearchQuery = "#cannonballapp AND pic.twitter.com AND (#adventure OR #romance OR #nature OR #mystery)"
 
+private let PoemSearchParameters: Dictionary<String, String> =
+    [  "q" : PoemSearchQuery,
+        "count": "50"
+    ]
+
 extension TWTRAPIClient {
-
     // Search for poems on Twitter.
-    func searchPoemTweets(completion: PoemTweetsResult -> ()) {
-        // Login as a guest on Twitter to search Tweets.
-        Twitter.sharedInstance().logInGuestWithCompletion { (session: TWTRGuestSession!, error: NSError!) -> Void in
-
-            // Setup a Dictionary to store the parameters of the request.
-            var parameters = Dictionary<String, String>()
-            parameters["q"] = PoemSearchQuery
-            parameters["count"] = "50"
-
-            // Prepare the Twitter API request.
-            var maybeError: NSError?
-            var request = self.URLRequestWithMethod("GET", URL: TwitterAPISearchURL, parameters: parameters, error: &maybeError)
-
-            if let error = maybeError {
-                completion(.Error(error))
-                return
-            }
-
-            // Perform the Twitter API request.
-            self.sendTwitterRequest(request, completion: { (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
-                if error != nil {
-                    completion(.Error(error))
-                    return
-                }
-
-                let poemSearchResult = tweetsFromJSONData(data)
-
-                completion(poemSearchResult)
-            })
-        }
+    func searchPoemTweets(completion: [TWTRTweet]? -> ()) {
+        completion(nil)
     }
-
 }
 
-private func tweetsFromJSONData(jsonData: NSData) -> PoemTweetsResult {
-    // Parse the JSON response.
-    var maybeJSONError: NSError?
-    let jsonData: AnyObject? = NSJSONSerialization.JSONObjectWithData(jsonData, options: NSJSONReadingOptions(0), error: &maybeJSONError)
-
-    // Check for parsing errors.
-    if let JSONError = maybeJSONError {
-        return PoemTweetsResult.Error(JSONError)
+private func JSONDictionaryFromData(JSONData: NSData) -> [String: AnyObject]? {
+    var JSONError: NSError?
+    if let JSONDictionary = NSJSONSerialization.JSONObjectWithData(JSONData, options: .allZeros, error: &JSONError) as? [String: AnyObject] {
+        return JSONDictionary
     } else {
-        // Make the JSON data a dictionary.
-        let jsonDictionary = jsonData as [String:AnyObject]
+        println("Error parsing JSON Dictionary: \(JSONError!)")
+        return nil
+    }
+}
 
-        // Extract the Tweets and create Tweet objects from the JSON data.
-        let jsonTweets = jsonDictionary["statuses"] as NSArray
-        let tweets = TWTRTweet.tweetsWithJSONArray(jsonTweets) as [TWTRTweet]
+private func tweetsFromTwitterResponseDictionary(tweetsDictionary: [String: AnyObject]) -> [TWTRTweet] {
+    return []
+}
 
-        return .Tweets(tweets)
+private func tweetsFromJSONData(jsonData: NSData) -> [TWTRTweet]? {
+    return JSONDictionaryFromData(jsonData).map { tweetsDictionary in
+        return tweetsFromTwitterResponseDictionary(tweetsDictionary)
     }
 }

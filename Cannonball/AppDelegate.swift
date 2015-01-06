@@ -15,10 +15,6 @@
 //
 
 import UIKit
-import Fabric
-import TwitterKit
-import Crashlytics
-import MoPub
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -26,20 +22,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
-        assert(NSBundle.mainBundle().objectForInfoDictionaryKey("Fabric") != nil, "Welcome to Cannonball. Please remember to onboard using the Fabric Mac app. Check the instructions in the README file.")
-
-        // Register Twitter, Crashlytics and MoPub with Fabric.
-        Fabric.with([Twitter(), Crashlytics(), MoPub()])
-
-        // Check if the user is logged in or not to present the sign in screen.
-        if Twitter.sharedInstance().session() == nil {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let signInViewController: AnyObject! = storyboard.instantiateViewControllerWithIdentifier("SignInViewController")
-            self.window?.rootViewController = signInViewController as? UIViewController
-        }
-
-        // Override point for customization after application launch.
         return true
+    }
+
+    func showSignInController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let signInViewController: AnyObject! = storyboard.instantiateViewControllerWithIdentifier("SignInViewController")
+        self.window?.rootViewController = signInViewController as? UIViewController
     }
 
 }

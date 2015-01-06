@@ -15,7 +15,6 @@
 //
 
 import UIKit
-import TwitterKit
 
 class AboutViewController: UIViewController {
 
@@ -59,9 +58,7 @@ class AboutViewController: UIViewController {
     }
 
     @IBAction func signOut(sender: AnyObject) {
-        // Remove any Twitter or Digits local sessions for this app.
-        Twitter.sharedInstance().logOut()
-        Digits.sharedInstance().logOut()
+        // Sign out from Twitter and Digits:
 
         // Present the Sign In again.
         let storyboard = UIStoryboard(name: "Main", bundle: nil)

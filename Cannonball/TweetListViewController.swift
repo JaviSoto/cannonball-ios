@@ -15,17 +15,16 @@
 //
 
 import UIKit
-import TwitterKit
 
-class TweetListViewController: UITableViewController, TWTRTweetViewDelegate {
+class TweetListViewController: UITableViewController {
 
     var tweets: [TWTRTweet] = [] {
         didSet {
-            tableView.reloadData()
+            self.tableView.reloadData()
         }
     }
 
-    var prototypeCell: TWTRTweetTableViewCell?
+    var prototypeCell: UITableViewCell!
 
     let tweetTableCellReuseIdentifier = "TweetCell"
 
@@ -42,10 +41,10 @@ class TweetListViewController: UITableViewController, TWTRTweetViewDelegate {
         self.tableView.allowsSelection = false
 
         // Create a single prototype cell for height calculations.
-        self.prototypeCell = TWTRTweetTableViewCell(style: .Default, reuseIdentifier: tweetTableCellReuseIdentifier)
+        self.prototypeCell = UITableViewCell(style: .Default, reuseIdentifier: tweetTableCellReuseIdentifier)
 
         // Register the identifier for TWTRTweetTableViewCell.
-        self.tableView.registerClass(TWTRTweetTableViewCell.self, forCellReuseIdentifier: tweetTableCellReuseIdentifier)
+        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: tweetTableCellReuseIdentifier)
 
         // Setup the refresh control.
         self.refreshControl = UIRefreshControl()
@@ -84,22 +83,13 @@ class TweetListViewController: UITableViewController, TWTRTweetViewDelegate {
         }
         self.isLoadingTweets = true
 
-        // Search for poems on Twitter by performing an API request.
-        Twitter.sharedInstance().APIClient.searchPoemTweets() { poemSearchResult in
-            switch poemSearchResult {
-            case let .Tweets(tweets):
-                // Add Tweets objects from the JSON data.
-                self.tweets = tweets
-            case let .Error(error):
-                println("Error searching tweets: \(error)")
-            }
+        // TODO: Request tweets
 
-            // End the refresh indicator.
-            self.refreshControl?.endRefreshing()
+        // End the refresh indicator.
+        self.refreshControl?.endRefreshing()
 
-            // Update the boolean since we are no longer loading Tweets.
-            self.isLoadingTweets = false
-        }
+        // Update the boolean since we are no longer loading Tweets.
+        self.isLoadingTweets = false
     }
 
     func refreshInvoked() {
@@ -107,51 +97,24 @@ class TweetListViewController: UITableViewController, TWTRTweetViewDelegate {
         loadTweets()
     }
 
-    // MARK: TWTRTweetViewDelegate
-
-    func tweetView(tweetView: TWTRTweetView!, didSelectTweet tweet: TWTRTweet!) {
-        // Display a Web View when selecting the Tweet.
-        let webViewController = UIViewController()
-        let webView = UIWebView(frame: webViewController.view.bounds)
-        webView.loadRequest(NSURLRequest(URL: tweet.permalink))
-        webViewController.view = webView
-        self.navigationController?.pushViewController(webViewController, animated: true)
-    }
-
     // MARK: UITableViewDataSource
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Return the number of Tweets.
-        return tweets.count
+        return self.tweets.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         // Retrieve the Tweet cell.
-        let cell = tableView.dequeueReusableCellWithIdentifier(tweetTableCellReuseIdentifier, forIndexPath: indexPath) as TWTRTweetTableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(tweetTableCellReuseIdentifier, forIndexPath: indexPath) as UITableViewCell
 
-        // Assign the delegate to control events on Tweets.
-        cell.tweetView.delegate = self
-
-        // Retrieve the Tweet model from loaded Tweets.
-        let tweet = tweets[indexPath.row]
-
-        // Configure the cell with the Tweet.
-        cell.configureWithTweet(tweet)
-
-        // Return the Tweet cell.
         return cell
     }
 
     // MARK: UITableViewDelegate
 
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        let tweet = self.tweets[indexPath.row]
-        self.prototypeCell?.configureWithTweet(tweet)
-        if let height = self.prototypeCell?.calculatedHeightForWidth(self.view.bounds.width) {
-            return height
-        } else {
-            return self.tableView.estimatedRowHeight
-        }
+        return self.tableView.estimatedRowHeight
     }
 
 }

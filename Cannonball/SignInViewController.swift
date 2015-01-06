@@ -15,7 +15,6 @@
 //
 
 import UIKit
-import TwitterKit
 
 class SignInViewController: UIViewController, UIAlertViewDelegate {
 
@@ -53,19 +52,9 @@ class SignInViewController: UIViewController, UIAlertViewDelegate {
     // MARK: IBActions
 
     @IBAction func signInWithTwitter(sender: UIButton) {
-        Twitter.sharedInstance().logInWithCompletion { (session: TWTRSession!, error: NSError!) -> Void in
-            if session != nil {
-                self.navigateToMainAppScreen()
-            }
-        }
     }
 
     @IBAction func signInWithPhone(sender: UIButton) {
-        Digits.sharedInstance().authenticateWithCompletion { (session: DGTSession!, error: NSError!) -> Void in
-            if session != nil {
-                self.navigateToMainAppScreen()
-            }
-        }
     }
 
     // MARK: Utilities

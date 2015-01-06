@@ -15,11 +15,6 @@
 //
 
 import UIKit
-import MoPub
-import TwitterKit
-
-// Set your MoPub Ad Unit ID just below to display MoPub Native Ads.
-let MoPubAdUnitID = ""
 
 class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
 
@@ -29,27 +24,12 @@ class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
 
     private let poemTableCellReuseIdentifier = "PoemCell"
 
-    var placer: MPTableViewAdPlacer!
-
     var poems: [Poem] = []
 
     // MARK: View Life Cycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Configure the MoPub ad positioning.
-        var positioning = MPServerAdPositioning()
-
-        // Instanciate the MPTableViewAdPlacer.
-        placer = MPTableViewAdPlacer(tableView: self.tableView, viewController: self, adPositioning: positioning, defaultAdRenderingClass: NativeAdCell.self)
-
-        // Add targeting parameters.
-        var targeting = MPNativeAdRequestTargeting()
-        targeting.desiredAssets = NSSet(objects: kAdIconImageKey, kAdMainImageKey, kAdCTATextKey, kAdTextKey, kAdTitleKey)
-
-        // Begin loading ads and placing them into your feed, using the ad unit ID.
-        placer.loadAdsForAdUnitID(MoPubAdUnitID)
 
         // Retrieve the poems.
         self.poems = PoemPersistence.sharedInstance.retrievePoems();
@@ -86,8 +66,7 @@ class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        // Use the MoPub-specific version of the table view method.
-        let cell = tableView.mp_dequeueReusableCellWithIdentifier(poemTableCellReuseIdentifier, forIndexPath: indexPath) as UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(poemTableCellReuseIdentifier, forIndexPath: indexPath) as UITableViewCell
 
         if let poemCell = cell as? PoemCell {
             poemCell.delegate = self
@@ -105,7 +84,8 @@ class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
 
             // Remove the poem and reload the table view.
             self.poems = self.poems.filter( { $0 != poem })
-            self.tableView.mp_deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+
+            self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
 
             // Archive and save the poems again.
             PoemPersistence.sharedInstance.overwritePoems(self.poems)
@@ -122,24 +102,18 @@ class PoemHistoryViewController: UITableViewController, PoemCellDelegate {
 
     func poemCellWantsToSharePoem(poemCell: PoemCell) {
         // Find the poem displayed at this index path.
-        let indexPath = self.tableView.mp_indexPathForCell(poemCell)
+        let indexPath = self.tableView.indexPathForCell(poemCell)!
         let poem = self.poems[indexPath.row]
 
         // Generate the image of the poem.
         let poemImage = poemCell.capturePoemImage()
 
-        // Use the TwitterKit to create a Tweet composer.
-        let composer = TWTRComposer()
+        sharePoem(poem, withImage: poemImage)
+    }
 
-        // Prepare the Tweet with the poem and image.
-        composer.setText("Just composed a poem! #cannonballapp #\(poem.theme.lowercaseString)")
-        composer.setImage(poemImage)
+    // MARK: Sharing poems
 
-        // Present the composer to the user.
-        composer.showWithCompletion({ (result: TWTRComposerResult!) -> Void in
-            if result == .Done {
-                println("Tweet composition completed")
-            }
-        })
+    func sharePoem(poem: Poem, withImage image: UIImage) {
+        let tweetText = "Just composed a poem! #cannonballapp #\(poem.theme.lowercaseString)"
     }
 }
